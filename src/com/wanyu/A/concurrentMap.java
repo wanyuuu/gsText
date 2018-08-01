@@ -1,5 +1,7 @@
 package com.wanyu.A;
 
+import org.junit.Test;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,12 +32,14 @@ public class concurrentMap {
         hashMap.put(null,null);
         hashSet.add("1");
         System.out.println(hashSet.add("1"));//返回false
+
         //基于动态数组 非线程安全 查询速度快 增加删除慢（因为需要数组复制） 需要扩容
         //初始容量10 1.5倍扩容 如何扩容 增加 删除
         // System.arrayCopy Arrays.copyOf 实现List接口
         List list = new ArrayList();
         list.add(1);
         list.add(null);
+
         //基于双向链表实现的线程非安全的集合 链表结构 不能随机访问 查询速度慢 可从头插 从尾插 插入速度快
         //查询时 类似二分 判断离头结点近还是尾节点近 然后便利寻找
         //实现了 List、Deque 接口
@@ -61,5 +65,21 @@ public class concurrentMap {
         while(it.hasNext()){
             System.out.println(it.next());
         }
+    }
+    @Test
+    public void test(){
+        //重写equals hashCode
+        //equals 先比较两个对象的地址是否相等 如果地址相等 则相等
+        //若地址不相等 比较长度是否相等 若相等 则分别用字符数组的形式 比较每个字符是否相等 若都相等 则返回true
+        //hashCode  hash = hash * 31 + char[i] i++
+        String s= "ss";
+        System.out.println(s.equals("ss"));
+        System.out.println(5+'A');
+//        int a = Integer.parseInt(s);
+        //数字的ascii都比字母小
+        System.out.println('s'>'0');
+        int arr[] = {1,2,3,4,5};
+        int arrb[] = Arrays.copyOf(arr,10);//把元素copy进来 并扩展长度
+        System.out.print(arrb.length);
     }
 }
