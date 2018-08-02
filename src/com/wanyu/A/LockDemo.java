@@ -35,9 +35,27 @@ public class LockDemo {
         方法，而NonfairSync、FairSync则继承自Sync，实现了获取锁的tryAcquire方法。
          */
         /*
-        NonfairSync 加锁  执行CAS操作，尝试把state的状态从0到1，返回true则获取锁成功，可操作临界资源；若返回false则表示已有线程持有锁，
-        获取失败。（CAS操作保证了操作state的原子性） 获取失败执行acquire再次尝试获取锁（判断state是否为0，为0执行CAS操作），
+        NonfairSync 1、加锁  执行CAS操作，尝试把state的状态从0到1，返回true则获取锁成功，可操作临界资源；若返回false则表示已有线程持有锁，
+        获取失败。（CAS操作保证了操作state的原子性） 2、获取失败执行acquire再次尝试获取锁（判断state是否为0，为0执行CAS操作），getState
+        判断state是否为0，是则执行CAS操作。如果当前线程已获得锁，属于重入锁，再次获取锁后status+1。
+        tryAcquire如果返回true，说明当前线程已经获得锁，3、若返回false，则会执行addWaiter（Node.EXCLUSIVE）进行入队操作。
+        addWaiter实现：4、把请求锁失败的线程封装成Node结点，如果是第一个结点或CAS操作失败执行enq操作（创建并设置head）。
+        若非第一个结点则执行CAS操作，尝试在尾部快速添加。
+        enq方法采用一个死循环进行CAS操作，解决多线程并发问题。做了两件事：1、初始化同步队列创建新结点 2、将结点插入到队尾
+        5、添加到同步队列后，结点就会进入一个自旋过程，即每个节点都在等待条件满足获取同步状态，然后从同步队列退出并结束自旋。
+        自旋是在acquireQueued中进行的：获取前驱节点，当为头结点时才尝试获取同步状态，获取同步状态后，将当前节点设置为head。
+        符合FIFO规则。其次head是当前获取同步状态的节点，只有当head释放同步状态（释放锁）唤醒后继节点，后继节点才可能获取到同步状态，
+        因此后继节点在其前继节点为head时，才尝试获取同步状态，其他时刻将被挂起。
+
+        可中断的获取方式：即调用ReentrantLock类的lockInterruptibly()或者tryLock()方法，最终它们都间接调用到doAcquireInterruptibly()。
+        直接抛异常 中断线程的同步状态请求 从同步队列中移除
         */
+        /*
+            unlock解锁：getState、state-1后若=0，则说明已释放锁，释放同步状态后会唤醒后继节点的线程。
+            公平锁加锁和非公平锁不同点：在CAS尝试设置state值前，会判断同步队列是否存在节点，如果存在必须执行完同步队列中节点的线程，
+        当前线程封装成节点进入同步队列等待。而非公平锁不管同步队列中是否存在线程节点，直接尝试获取同步状态。
+            在绝大多数情况下，非公平锁才是理想的选择，效率上远胜公平锁。
+         */
         //默认非公平锁
         Lock reentranLock = new ReentrantLock();
 

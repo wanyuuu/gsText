@@ -3,8 +3,7 @@ package com.wanyu.A;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.*;
 
 /**
  * Created by wanyu3 on 2018/7/3.
@@ -65,6 +64,15 @@ public class concurrentMap {
         while(it.hasNext()){
             System.out.println(it.next());
         }
+        //无界线程安全队列 非阻塞 使用循环CAS
+        ConcurrentLinkedQueue concurrentLinkedQueue = new ConcurrentLinkedQueue();
+
+        //基于数组的阻塞队列实现 有界队列
+        BlockingQueue blockingArrayQueue = new ArrayBlockingQueue(5);
+
+        //基于链表的阻塞队列 内部采用读写分离两个锁 实现生产者消费者完全并行运行 是一个无界队列
+        BlockingQueue blockingLinkQueue = new LinkedBlockingQueue<>();
+
     }
     @Test
     public void test(){
