@@ -21,7 +21,7 @@ public class C2 {
     }
     ListNode node = null;
     public void init(int val){
-        node = new ListNode(val);
+        node = new ListNode(val);// 1
     }
     public void addNode(int val){
         ListNode newNode = new ListNode(val);

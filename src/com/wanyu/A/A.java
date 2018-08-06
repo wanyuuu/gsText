@@ -50,4 +50,5 @@ public class A {
         System.out.println(name == name3);//false
         HashMap map = new HashMap<>();
     }
+
 }

@@ -77,7 +77,7 @@ public class casCounter {
         t1.start();
         t2.start();
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1000);
             System.out.println(getNum()); //可能出现不是10000
             System.out.println(getCount());
         } catch (InterruptedException e) {

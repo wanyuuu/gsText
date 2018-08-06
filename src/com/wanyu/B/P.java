@@ -16,16 +16,36 @@ public class P {
     @Test
     public void test(){
         int[][] arr = {{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16}};
+        printMatrix(arr);
     }
-    public ArrayList<Integer> printMatrix(int [][] matrix) {
+    public void printMatrix(int [][] matrix) {
         int m = matrix.length;//行数
         int n = matrix[0].length;//列数
-
-        for(int i=0;i<m;){
-            for(int j=0;j<n-1;j++){
-                System.out.println(matrix[i][j]);
+        int num = m * n;
+        int i = 0;
+        int j = 0;
+        int k = 1;
+        int l = 1;
+        boolean flag = true;
+        while(num > 0){
+            if(flag){
+                System.out.print(matrix[i][j]);
+                num--;
+                j = j + k;
+                if(j == n-1){
+                    flag = !flag;
+                }
+            }else {
+                System.out.print(matrix[i][j]);
+                num--;
+                i = i + l;
+                if(i == m-1){
+                    flag = !flag;
+                    k = -k;
+                    l = -l;
+                }
             }
         }
-        return new ArrayList<>();
+
     }
 }

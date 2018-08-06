@@ -4,57 +4,72 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by wanyu3 on 2018/5/24.
+ * Created by wanyu3 on 2018/5/29.
  */
 public class LockTest {
-    private Lock lock= new ReentrantLock();
-    public void intoThread(Thread thread){
-        lock.lock();
-        try{
-            System.out.println(Thread.currentThread().getName()+"获得了锁");
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            lock.unlock();//只有释放锁 其他线程才能使用该方法
-            System.out.println(Thread.currentThread().getName()+"释放了锁");
-        }
-    }
-    public void intoThread2(Thread thread){
-        if(lock.tryLock()){//如果锁没被占用则返回true 若被占用返回false
-            try{
-                System.out.println(Thread.currentThread().getName()+"获取了锁");
-                lock.lock();
-            }catch (Exception e){
-                e.printStackTrace();
-            }finally{
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println(Thread.currentThread().getName()+"释放了锁");
-                lock.unlock();
-            }
-        }else {
-            System.out.println("锁已被占用，"+Thread.currentThread().getName()+"放弃获取");
-        }
-    }
+    final static Lock lock = new ReentrantLock();
 
     public static void main(String[] args) {
-        final LockTest lockTest=new LockTest();
-        Thread t1=new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                lockTest.intoThread2(Thread.currentThread());
+                if (lock.tryLock()) { //被其他线程占用则返回false
+                    lock.lock();       //锁后仍是true
+                    System.out.println(Thread.currentThread().getName() + "获取了锁"+lock.tryLock());
+                }
+                try {
+                    if (lock.tryLock()) {
+                        for (int i = 0; i < 5; i++) {
+                            System.out.println(Thread.currentThread().getName() +":"+i + "正在运行");
+                        }
+                    } else {
+                        System.out.println(Thread.currentThread().getName() + "想要获取，但锁已被占用，无法获取");
+                        return ;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if(lock.tryLock()) {
+                        // t2可能在这进行了tryLock的判断 导致出现 t1已经释放锁了 然后t2仍没有获取到锁
+                        lock.unlock();
+                        System.out.println("锁已被释放");
+                    }
+                    System.out.println(Thread.currentThread().getName()+lock.tryLock());
+                }
             }
-        },"t1");
-        Thread t2=new Thread(new Runnable() {
+        }, "t1").start();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                lockTest.intoThread2(Thread.currentThread());
+                if (lock.tryLock()) {//仅在调用时锁为空闲状态才获取
+                    lock.lock();
+                    System.out.println(Thread.currentThread().getName() + "获取了锁"+lock.tryLock());
+                }
+                try {
+                    if (lock.tryLock()) {
+                        for (int i = 0; i < 5; i++) {
+                            System.out.println(Thread.currentThread().getName() +":"+i+ "正在运行");
+                        }
+                    } else {
+                        System.out.println(Thread.currentThread().getName() + "想要获取，但锁已被占用，无法获取");
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if(lock.tryLock()) {
+                        lock.unlock();
+                        System.out.println("锁已被释放");
+                    }
+                    System.out.println(Thread.currentThread().getName()+lock.tryLock());
+                }
             }
-        },"t2");
-        t1.start();
-        t2.start();
+        }, "t2").start();
+
     }
 }

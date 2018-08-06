@@ -11,7 +11,9 @@ public class D {
         Object obj[]={3,1,2,5,7,10,9,20};
         BinTree bin=new BinTree();
         bin.createTree(obj);
-        bin.preorder(bin);
+//        bin.preorder(bin.getRoot());
+        bin.inorder(bin.getRoot());
+        bin.tailorder(bin.getRoot());
     }
 }
 class BinTree{
@@ -53,19 +55,22 @@ class BinTree{
     }
     public void inorder(BinTree root){
         if(root!=null){
-            preorder(root.leftChild);
+            inorder(root.leftChild);
             System.out.println(root.getData());
-            preorder(root.rightChild);
+            inorder(root.rightChild);
         }
     }
     public void tailorder(BinTree root){
         if(root!=null){
-            preorder(root.leftChild);
-            preorder(root.rightChild);
+            tailorder(root.leftChild);
+            tailorder(root.rightChild);
             System.out.println(root.getData());
         }
     }
     public Object getData(){
         return this.data;
+    }
+    public BinTree getRoot(){
+        return this.root;
     }
 }
